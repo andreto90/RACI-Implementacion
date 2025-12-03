@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz RACI - TÓTAL REPORT®</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slate 50 - Light background */
+            color: #0f172a; /* Slate 900 - Dark text */
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Sticky Columns/Header logic */
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background-color: #ffffff; /* White background for headers */
+        }
+        td:first-child, th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 30;
+            background-color: #ffffff;
+        }
+        th:first-child {
+            z-index: 40;
+        }
+
+        /* RACI Badges - Optimized for Light Mode */
+        .badge-base {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .badge-R { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; } /* Blue-50 to Blue-700 */
+        .badge-A { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; } /* Red-50 to Red-700 */
+        .badge-C { background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; } /* Green-50 to Green-700 */
+        .badge-I { background-color: #f8fafc; color: #475569; border: 1px solid #e2e8f0; } /* Slate-50 to Slate-600 */
+
+        /* Highlight effects */
+        .highlight-col { background-color: #eff6ff !important; } /* Light blue highlight */
+        .highlight-cell { 
+            transform: scale(1.1); 
+            font-weight: 700; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8); /* Slate-200 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Table borders */
+        .table-border {
+            border-color: #e2e8f0; /* Slate-200 */
+        }
+        
+        /* Column shadow for scroll */
+        .sticky-shadow {
+            box-shadow: 4px 0 12px -4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 bg-slate-50">
+
+    <!-- Header Section -->
+    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-6">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div>
+                <span class="text-xs font-mono text-emerald-600 font-semibold tracking-widest uppercase">Ecosistema Activo</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+                Matriz RACI <span class="text-slate-300 mx-2">|</span> <span class="text-blue-600">TÓTAL REPORT®</span>
+            </h1>
+            <p class="text-slate-500 mt-2 max-w-2xl text-sm leading-relaxed">
+                Documentación técnica de roles y responsabilidades para la fase de implementación, migración y despliegue normativo.
+            </p>
+        </div>
+        <div class="mt-4 md:mt-0 text-right">
+            <div class="text-xs text-slate-400 font-mono">VERSIÓN 2.5.0 (LIGHT)</div>
+            <div class="text-xs text-slate-400 font-mono">CONFIDENCIAL</div>
+            <button onclick="window.print()" class="mt-3 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 shadow-sm rounded-md text-xs font-semibold transition-all flex items-center gap-2 ml-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Exportar PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- Controls & Legend -->
+    <section class="max-w-7xl mx-auto mb-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        
+        <!-- Legend Box -->
+        <div class="lg:col-span-3 glass-panel rounded-xl p-4 flex flex-wrap gap-4 items-center justify-between">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Leyenda Interactiva:</span>
+            
+            <button onclick="highlightType('R')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all group">
+                <span class="badge-R badge-base w-6 h-6 flex items-center justify-center rounded text-xs font-bold">R</span>
+                <div class="flex flex-col text-left">
+                    <span class="text-xs font-bold text-slate-700">Responsible</span>
+                    <span class="text-[10px] text-slate-500">Ejecuta la tarea</span>
+                </div>
+            </button>
+
+            <button onclick="highlightType('A')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all group">
+                <span class="badge-A badge-base w-6 h-6 flex items-center justify-center rounded text-xs font-bold">A</span>
+                <div class="flex flex-col text-left">
+                    <span class="text-xs font-bold text-slate-700">Accountable</span>
+                    <span class="text-[10px] text-slate-500">Dueño / Aprueba</span>
+                </div>
+            </button>
+
+            <button onclick="highlightType('C')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all group">
+                <span class="badge-C badge-base w-6 h-6 flex items-center justify-center rounded text-xs font-bold">C</span>
+                <div class="flex flex-col text-left">
+                    <span class="text-xs font-bold text-slate-700">Consulted</span>
+                    <span class="text-[10px] text-slate-500">Experto consultado</span>
+                </div>
+            </button>
+
+            <button onclick="highlightType('I')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all group">
+                <span class="badge-I badge-base w-6 h-6 flex items-center justify-center rounded text-xs font-bold">I</span>
+                <div class="flex flex-col text-left">
+                    <span class="text-xs font-bold text-slate-700">Informed</span>
+                    <span class="text-[10px] text-slate-500">Notificado</span>
+                </div>
+            </button>
+            
+            <button onclick="resetHighlights()" class="text-xs text-blue-600 hover:text-blue-800 font-medium underline ml-auto decoration-blue-200 hover:decoration-blue-800 transition-all">Resetear Vistas</button>
+        </div>
+
+        <!-- Role Filter Dropdown -->
+        <div class="lg:col-span-1 glass-panel rounded-xl p-4 flex items-center">
+             <select id="roleFilter" onchange="highlightColumn(this.value)" class="w-full bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm">
+                <option value="-1">Filtrar por Rol / Columna...</option>
+                <option value="1">Arquitectura TI</option>
+                <option value="2">Riesgo</option>
+                <option value="3">Cumplimiento</option>
+                <option value="4">Área Normativa</option>
+                <option value="5">Equipo Técnico TÓTAL</option>
+                <option value="6">Auditoría</option>
+                <option value="7">Proveedor Infra</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Main Table Container -->
+    <main class="max-w-7xl mx-auto">
+        <div class="glass-panel rounded-xl overflow-hidden shadow-xl relative bg-white">
+            <div class="overflow-x-auto max-h-[70vh]">
+                <table class="w-full text-sm text-left border-collapse" id="raciTable">
+                    <thead class="text-xs text-slate-500 uppercase bg-white border-b border-slate-200 font-mono tracking-wide">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 min-w-[250px] border-r border-slate-200 sticky-shadow bg-slate-50/50">
+                                Actividad / Fase
+                            </th>
+                            <th scope="col" class="px-4 py-4 min-w-[140px] text-center hover:bg-slate-50 cursor-pointer transition-colors" onclick="highlightColumn(1)">Arquitectura TI</th>
+                            <th scope="col" class="px-4 py-4 min-w-[100px] text-center hover:bg-slate-50 cursor-pointer transition-colors" onclick="highlightColumn(2)">Riesgo</th>
+                            <th scope="col" class="px-4 py-4 min-w-[130px] text-center hover:bg-slate-50 cursor-pointer transition-colors" onclick="highlightColumn(3)">Cumplimiento</th>
+                            <th scope="col" class="px-4 py-4 min-w-[140px] text-center hover:bg-slate-50 cursor-pointer transition-colors" onclick="highlightColumn(4)">Área Normativa</th>
+                            <th scope="col" class="px-4 py-4 min-w-[160px] text-center hover:bg-slate-50 cursor-pointer text-blue-600 font-bold bg-blue-50/30 transition-colors" onclick="highlightColumn(5)">Equipo Técnico TÓTAL</th>
+                            <th scope="col" class="px-4 py-4 min-w-[100px] text-center hover:bg-slate-50 cursor-pointer transition-colors" onclick="highlightColumn(6)">Auditoría</th>
+                            <th scope="col" class="px-4 py-4 min-w-[160px] text-center hover:bg-slate-50 cursor-pointer transition-colors" onclick="highlightColumn(7)">Proveedor Infra</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-600" id="tableBody">
+                        <!-- Javascript will populate this based on the matrix data -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Footer Notes -->
+        <div class="mt-6 flex flex-col md:flex-row justify-between text-xs text-slate-400 font-mono border-t border-slate-200 pt-4">
+            <p>Generado automáticamento para TÓTAL REPORT®. Uso interno.</p>
+            <p>Última actualización: Septiembre 2025</p>
+        </div>
+    </main>
+
+    <script>
+        // Data Representation of the Matrix
+        const matrixData = [
+            { task: "Análisis normativo",                   vals: ["C", "A", "C", "R", "I", "I", "I"] },
+            { task: "Diseño arquitectura técnica",          vals: ["R", "I", "I", "I", "A", "I", "C"] },
+            { task: "Configuración de microservicios",      vals: ["R", "I", "I", "I", "A", "I", "C"] },
+            { task: "Carga y validación de catálogos",      vals: ["I", "C", "C", "R", "A", "I", "I"] },
+            { task: "Construcción de pipelines ETL",        vals: ["R", "C", "I", "I", "A", "I", "C"] },
+            { task: "Configuración de reglas normativas",   vals: ["I", "C", "C", "R", "A", "I", "I"] },
+            { task: "Pruebas unitarias normativas",         vals: ["R", "C", "C", "R", "A", "I", "I"] },
+            { task: "Pruebas integrales",                   vals: ["R", "C", "C", "C", "A", "I", "I"] }, 
+            { task: "Configuración de seguridad",           vals: ["R", "C", "A", "I", "A", "I", "C"] },
+            { task: "Configuración de roles/perfiles",      vals: ["R", "C", "A", "I", "A", "I", "I"] },
+            { task: "Implementación Formato Normativo",     vals: ["C", "R", "C", "R", "A", "I", "I"] },
+            { task: "Validación técnica de transmisión",    vals: ["R", "C", "C", "I", "A", "I", "I"] },
+            { task: "Puesta en marcha",                     vals: ["R", "I", "I", "I", "A", "C", "C"] },
+            { task: "Capacitación final",                   vals: ["C", "I", "I", "R", "A", "I", "I"] },
+            { task: "Auditoría posterior",                  vals: ["I", "C", "C", "I", "R", "A", "I"] },
+        ];
+
+        const tbody = document.getElementById('tableBody');
+
+        // Helper to create badge HTML
+        function getBadge(letter) {
+            const classes = `badge-${letter} badge-base w-8 h-8 flex items-center justify-center rounded-lg font-bold text-sm mx-auto transition-transform duration-200`;
+            return `<div class="${classes}" data-type="${letter}">${letter}</div>`;
+        }
+
+        // Render Table
+        matrixData.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50 transition-colors group";
+            
+            // Task Name Cell
+            let html = `<td class="px-6 py-4 font-medium text-slate-800 bg-white border-r border-slate-200 group-hover:bg-slate-50 transition-colors sticky-shadow sticky left-0 z-10">
+                            ${row.task}
+                        </td>`;
+            
+            // Value Cells
+            row.vals.forEach((val, i) => {
+                const isTotalTeam = i === 4; 
+                // Light blue subtle tint for the main column
+                const cellBg = isTotalTeam ? 'bg-blue-50/20' : '';
+                
+                html += `<td class="px-4 py-3 text-center ${cellBg} border-r border-slate-100 last:border-0" data-col="${i + 1}">
+                            ${getBadge(val)}
+                         </td>`;
+            });
+
+            tr.innerHTML = html;
+            tbody.appendChild(tr);
+        });
+
+        // --- Interaction Logic ---
+
+        function resetHighlights() {
+            // Remove col highlights
+            document.querySelectorAll('td, th').forEach(el => el.classList.remove('bg-blue-50', 'text-blue-800'));
+            // Remove badge dims
+            document.querySelectorAll('[data-type]').forEach(el => {
+                el.style.opacity = '1';
+                el.classList.remove('highlight-cell');
+            });
+            document.getElementById('roleFilter').value = "-1";
+        }
+
+        function highlightType(type) {
+            resetHighlights();
+            // Dim everyone slightly
+            document.querySelectorAll('[data-type]').forEach(el => el.style.opacity = '0.4');
+            // Highlight specific
+            document.querySelectorAll(`[data-type="${type}"]`).forEach(el => {
+                el.style.opacity = '1';
+                el.classList.add('highlight-cell');
+            });
+        }
+
+        function highlightColumn(colIndex) {
+            resetHighlights();
+            if(colIndex == -1) return;
+
+            // Highlight Header
+            const header = document.querySelector(`th:nth-child(${parseInt(colIndex) + 1})`);
+            if(header) {
+                header.classList.add('bg-blue-50', 'text-blue-800');
+            }
+
+            // Highlight Cells in that column
+            const cells = document.querySelectorAll(`td:nth-child(${parseInt(colIndex) + 1})`);
+            cells.forEach(cell => {
+                cell.classList.add('bg-blue-50'); // Stronger highlight for light mode
+                // Highlight the badge inside
+                const badge = cell.querySelector('div');
+                if(badge) badge.classList.add('highlight-cell');
+            });
+        }
+    </script>
+</body>
+</html>
